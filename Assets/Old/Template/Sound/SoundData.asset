@@ -1,0 +1,28 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 067f41c26fe344ac7947aa77f087e2ee, type: 3}
+  m_Name: SoundData
+  m_EditorClassIdentifier: 
+  SetName: 1
+  sounds:
+  - name: Background
+    soundName: 1
+    clip: {fileID: 8300000, guid: a9eaa4cefa746604b8701d9c25622d8c, type: 3}
+    loop: 1
+  - name: ButtonClick
+    soundName: 2
+    clip: {fileID: 8300000, guid: 3c40c0453d093467fa41c4a0e70a26a6, type: 3}
+    loop: 0
+  - name: gunshot
+    soundName: 3
+    clip: {fileID: 8300000, guid: b60c081e7defe4042934cef63c160765, type: 3}
+    loop: 0
