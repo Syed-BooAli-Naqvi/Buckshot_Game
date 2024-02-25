@@ -28,7 +28,6 @@ Transform:
   m_LocalRotation: {x: -0.52641845, y: 0.4925252, z: 0.463272, w: 0.51544315}
   m_LocalPosition: {x: 28.719639, y: 1.9846598, z: 24.287663}
   m_LocalScale: {x: 31.005362, y: 31.005358, z: 31.005362}
-  m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
   m_RootOrder: 0
@@ -52,7 +51,6 @@ MeshRenderer:
   m_CastShadows: 1
   m_ReceiveShadows: 1
   m_DynamicOccludee: 1
-  m_StaticShadowCaster: 0
   m_MotionVectors: 1
   m_LightProbeUsage: 1
   m_ReflectionProbeUsage: 1
