@@ -21,6 +21,8 @@ public class TrainingEnemyHit : MonoBehaviour
             animator.SetTrigger("Die");
             collider.enabled = false;
             Invoke(nameof(Destroy), 4);
+            TrainingManager.Instance.AddTime();
+            TrainingManager.Instance.AddEnemyCount();
         }
     }
     void Destroy()

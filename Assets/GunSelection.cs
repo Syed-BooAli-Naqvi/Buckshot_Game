@@ -14,7 +14,18 @@ public class GunSelection : MonoBehaviour
         {
             test = false;
             playerWeapons.DropWeapon(playerWeapons.currentWeapon);
+        }
+    }
+    IEnumerator Start()
+    {
+        for (int i = 0; i < 2; i++)
+        {
+            yield return new WaitForSeconds(3);
+            peekaboo = Random.Range(0, 6);
             weaponPickup[peekaboo].PickUpItem();
         }
+    }
+    public void Select(int peekaboo)
+    {
     }
 }

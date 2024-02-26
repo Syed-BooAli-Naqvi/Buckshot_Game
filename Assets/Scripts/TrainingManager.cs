@@ -10,6 +10,69 @@ public class TrainingManager : Singleton<TrainingManager>
     public GameObject LevelCompletePanel;
     public GameObject LevelFailedPanel;
 
+    public float totalTime = 60f; // Total time for the timer
+    public Text timerText, enemyCountTxt; // Reference to the UI text component to display the timer
+    public int enemyCount;
+    private float timeRemaining; // Current time remaining
+    private Coroutine timerCoroutine; // Reference to the timer coroutine
+
+    private void Start()
+    {
+        timeRemaining = totalTime;
+        StartTimer();
+        enemyCountTxt.text = "Total Enemy Killed : " + (enemyCount + 1) + " / 40";
+    }
+
+    public void AddEnemyCount()
+    {
+        enemyCountTxt.text = "Total Enemy Killed : " + (enemyCount + 1) + " / 40";
+        enemyCount += 1;
+
+        if (enemyCount >= 39)
+            ShowLevelCompletePanel();
+    }
+    void StartTimer()
+    {
+        if (timerCoroutine != null)
+            StopCoroutine(timerCoroutine); // Stop the coroutine if it's already running
+
+        timerCoroutine = StartCoroutine(Countdown()); // Start the timer coroutine
+    }
+
+    public void AddTime() 
+    {
+        timeRemaining += 5;
+    }
+
+    IEnumerator Countdown()
+    {
+        while (timeRemaining > 0)
+        {
+            UpdateTimerDisplay(timeRemaining); // Update the timer display
+
+            yield return new WaitForSeconds(1f); // Wait for 1 second
+
+            timeRemaining -= 1f; // Decrease the time remaining by 1 second
+        }
+        if (enemyCount != 39)
+            ShowlevelFail();
+        else
+            ShowLevelCompletePanel();
+        // Timer has run out
+        timeRemaining = 0f;
+        UpdateTimerDisplay(timeRemaining);
+        Debug.Log("Time has run out!");
+    }
+
+    void UpdateTimerDisplay(float timeToDisplay)
+    {
+        // Convert time to minutes and seconds
+        float minutes = Mathf.FloorToInt(timeToDisplay / 60);
+        float seconds = Mathf.FloorToInt(timeToDisplay % 60);
+
+        // Update the UI text to display the time
+        timerText.text = "Time Remaining "+  string.Format("{0:00}:{1:00}", minutes, seconds);
+    }
 
     public void ShowLevelCompletePanel()
     {
