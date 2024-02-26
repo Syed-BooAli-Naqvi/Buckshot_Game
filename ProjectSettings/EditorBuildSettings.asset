@@ -5,13 +5,9 @@ EditorBuildSettings:
   m_ObjectHideFlags: 0
   serializedVersion: 2
   m_Scenes:
+  - enabled: 0
+    path: Assets/RFPSP/Obstacle Course Test.unity
   - enabled: 1
-    path: Assets/Scenes/Splash.unity
-    guid: 5e6176d8a68af4a8bbc1eeeb15e5557e
-  - enabled: 1
-    path: Assets/Scenes/MainMenu.unity
-    guid: cdf913ba2df664c29ab7beb5cdc2a870
-  - enabled: 1
-    path: Assets/Scenes/Roulette Env.unity
-    guid: 5fed39f953b76f4428b2c9962571eb7a
-  m_configObjects: {}
+    path: Assets/RFPSP/FPS Prefab Sandbox.unity
+  - enabled: 0
+    path: Assets/RFPSP/TerrainTest.unity

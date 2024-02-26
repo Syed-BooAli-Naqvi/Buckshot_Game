@@ -4,8 +4,20 @@
 TagManager:
   serializedVersion: 2
   tags:
-  - Gun
-  - Fire
+  - NoHitMark
+  - Usable
+  - NPC
+  - gun
+  - PhysicsObject
+  - Climbable
+  - Water
+  - Dirt
+  - Metal
+  - Wood
+  - Glass
+  - Flesh
+  - Stone
+  - metal
   layers:
   - Default
   - TransparentFX
@@ -15,20 +27,20 @@ TagManager:
   - UI
   - 
   - 
+  - Gun
   - RCC
   - RCC_WheelCollider
+  - Player
+  - Bullet Shells
+  - NPCs
+  - GUICamera
   - RCC_DetachablePart
   - RCC_Trailer
   - RCC_Crasher
+  - Liquid Collision
   - 
-  - 
-  - 
-  - 
-  - 
-  - 
-  - 
-  - 
-  - 
+  - LeanCollider
+  - Player Clip
   - 
   - 
   - 
@@ -42,4 +54,10 @@ TagManager:
   m_SortingLayers:
   - name: Default
     uniqueID: 0
+    locked: 0
+  - name: Debris
+    uniqueID: 1561855295
+    locked: 0
+  - name: HitSpark
+    uniqueID: 1452714893
     locked: 0

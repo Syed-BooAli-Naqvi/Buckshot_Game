@@ -35,6 +35,8 @@ Properties {
 	_GSpeed ("Wave Speed", Vector) = (1.2, 1.375, 1.1, 1.5)
 	_GDirectionAB ("Wave Direction", Vector) = (0.3 ,0.85, 0.85, 0.25)
 	_GDirectionCD ("Wave Direction", Vector) = (0.1 ,0.9, 0.5, 0.5)
+
+	_Flip("Flip", Float) = 1.0//
 }
 
 
@@ -115,6 +117,8 @@ CGINCLUDE
 	
 	// foam
 	uniform float4 _Foam;
+
+	
 	
 	// shortcuts
 	#define PER_PIXEL_DISPLACE _DistortParams.x
@@ -205,12 +209,19 @@ CGINCLUDE
 			edgeBlendFactors.y = 1.0-edgeBlendFactors.y;
 		#endif
 		
-		// shading for fresnel term
-		worldNormal.xz *= _FresnelScale;
-		half refl2Refr = Fresnel(viewVector, worldNormal, FRESNEL_BIAS, FRESNEL_POWER);
+			
+
+		//// shading for fresnel term
+		//worldNormal.xz *= _FresnelScale;
+		//half refl2Refr = Fresnel(viewVector, worldNormal, FRESNEL_BIAS, FRESNEL_POWER);
+
+		 // shading for fresnel term
+		 worldNormal.xz *= _FresnelScale;
+		 half refl2Refr = Fresnel(viewVector, worldNormal, FRESNEL_BIAS, FRESNEL_POWER) * _Flip;
+
 		
 		// base, depth & reflection colors
-		half4 baseColor = ExtinctColor (_BaseColor, i.viewInterpolator.w * _InvFadeParemeter.w);
+		half4 baseColor = ExtinctColor (_BaseColor, -i.viewInterpolator.w * _InvFadeParemeter.w);
 		#ifdef WATER_REFLECTIVE
 			half4 reflectionColor = lerp (rtReflections,_ReflectionColor,_ReflectionColor.a);
 		#else
@@ -299,7 +310,7 @@ CGINCLUDE
 		#endif
 		
 		worldNormal.xz *= _FresnelScale;
-		half refl2Refr = Fresnel(viewVector, worldNormal, FRESNEL_BIAS, FRESNEL_POWER);
+		half refl2Refr = Fresnel(viewVector, worldNormal, FRESNEL_BIAS, FRESNEL_POWER) * _Flip;
 		
 		half4 baseColor = _BaseColor;
 		#ifdef WATER_REFLECTIVE
