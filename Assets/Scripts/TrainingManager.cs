@@ -15,6 +15,7 @@ public class TrainingManager : Singleton<TrainingManager>
     public int enemyCount;
     private float timeRemaining; // Current time remaining
     private Coroutine timerCoroutine; // Reference to the timer coroutine
+    public MoveObject bullet;
 
     private void Start()
     {

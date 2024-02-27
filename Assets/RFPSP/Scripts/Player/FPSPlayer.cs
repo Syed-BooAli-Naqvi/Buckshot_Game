@@ -1358,5 +1358,17 @@ public class FPSPlayer : MonoBehaviour {
 		FPSWalkerComponent.cancelSprint = true;
 		WeaponBehaviorComponent.shooting = false;
 	}
+	//public Image healthBar;
 
+  //  private void OnTriggerEnter(Collider collision)
+  //  {
+  //      if (collision.transform.CompareTag("Obstruction"))
+  //      {
+		//	healthBar.fillAmount = healthBar.fillAmount - 0.001f;
+  //          if (healthBar.fillAmount<0.1)
+  //          {
+		//		TrainingManager.Instance.ShowlevelFail();
+  //          }
+		//}
+  //  }
 }
