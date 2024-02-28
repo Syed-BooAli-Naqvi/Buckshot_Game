@@ -172,13 +172,17 @@ public class GameManager : Singleton<GameManager>
 
                 if (randomNum == 0)
                 {
+                    currentState.text = "Opponent Lost a life";
                     chooHeart[chooLifeCount].gameObject.SetActive(true);
                     chooLifeCount = chooLifeCount + 1;
+                }
+                else
+                {
+                    currentState.text = "Round Was Empty";
                 }
                 if (playerLifeCount == 3 || chooLifeCount == 3 || opp1LifeCount == 3 || opp2LifeCount == 3)
                     goto Here;
                 currentPlayerGun.SetActive(false);
-
             }
             else if (firedYourSelf) 
             {
@@ -195,8 +199,13 @@ public class GameManager : Singleton<GameManager>
 
                 if (randomNum == 0)
                 {
+                    currentState.text = "You Lost a life";
                     playerHeart[playerLifeCount].gameObject.SetActive(true);
                     playerLifeCount = playerLifeCount + 1;
+                }
+                else
+                {
+                    currentState.text = "Round Was Empty";
                 }
                 if (playerLifeCount == 3 || chooLifeCount == 3 || opp1LifeCount == 3 || opp2LifeCount == 3)
                     goto Here;
@@ -204,8 +213,9 @@ public class GameManager : Singleton<GameManager>
             }
 
 
+            yield return new WaitForSeconds(1);
             currentState.text = "CHOO'S TURN";
-            yield return new WaitForSeconds(2);
+            yield return new WaitForSeconds(1);
 
             currentPlayerchooGun.SetActive(true);
 
@@ -223,16 +233,21 @@ public class GameManager : Singleton<GameManager>
 
             if (randomNum == 0)
             {
+                currentState.text = "You Lost A Life";
                 playerHeart[playerLifeCount].gameObject.SetActive(true);
                 playerLifeCount = playerLifeCount + 1;
+            }
+            else
+            {
+                currentState.text = "Round Was Empty";
             }
             if (playerLifeCount == 3 || chooLifeCount == 3 || opp1LifeCount == 3 || opp2LifeCount == 3)
                 goto Here;
             currentPlayerchooGun.SetActive(false);
 
+            yield return new WaitForSeconds(1);
 
 
-            
             //currentPlayeropp2Gun.SetActive(true);
 
             //randomNum = Random.Range(0, 2);
@@ -261,7 +276,7 @@ public class GameManager : Singleton<GameManager>
 
             //currentPlayeropp1Gun.SetActive(true);
 
-            
+
             //randomNum = Random.Range(0, 2);
             //opp2Anim.SetTrigger(trigger);
 
@@ -281,16 +296,18 @@ public class GameManager : Singleton<GameManager>
             //    goto Here;
 
             //currentPlayeropp1Gun.SetActive(false);
-            
+
         }
         Here:
         if (playerLifeCount == 3)
         {
-            ShowLevelFailWithDelay(2);
+            playerAnim.SetTrigger("Die");
+            ShowLevelFailWithDelay(4);
         }
         else
         {
-            ShowLevelComplteWithDelay(2);
+            chooAnim.SetTrigger("Die");
+            ShowLevelComplteWithDelay(4);
         }
     }
 
