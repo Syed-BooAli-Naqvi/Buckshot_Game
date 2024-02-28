@@ -213,7 +213,7 @@ public class GameManager : Singleton<GameManager>
             }
 
 
-            yield return new WaitForSeconds(1);
+            yield return new WaitForSeconds(3);
             currentState.text = "CHOO'S TURN";
             yield return new WaitForSeconds(1);
 
@@ -245,7 +245,7 @@ public class GameManager : Singleton<GameManager>
                 goto Here;
             currentPlayerchooGun.SetActive(false);
 
-            yield return new WaitForSeconds(1);
+            yield return new WaitForSeconds(3);
 
 
             //currentPlayeropp2Gun.SetActive(true);
