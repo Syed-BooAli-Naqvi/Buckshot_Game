@@ -202,7 +202,7 @@ static public class CF2Input
 #if UNITY_EDITOR
 		ControlFreak2Editor.Assistant.CaptureAxis(axisName);
 #endif 
-		return ((mRig != null) ? mRig.GetAxis(axisName)				: Input.GetAxis(axisName)); 
+		return ((mRig != null) ? mRig.GetAxis(axisName) : Input.GetAxis(axisName)); 
 		}
 
 

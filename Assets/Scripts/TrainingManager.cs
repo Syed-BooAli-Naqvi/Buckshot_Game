@@ -19,6 +19,7 @@ public class TrainingManager : Singleton<TrainingManager>
 
     private void Start()
     {
+        GiveInfo("You are in training phase, once you complete your training you will be fully ready");
         timeRemaining = totalTime;
         StartTimer();
         enemyCountTxt.text = "Total Enemy Killed : " + (enemyCount + 1) + " / 40";
@@ -136,5 +137,12 @@ public class TrainingManager : Singleton<TrainingManager>
     {
         Time.timeScale = 1f;
         PausePanel.SetActive(false);
+    }
+    public Text info;
+    public GameObject infoPanel;
+    public void GiveInfo(string info)
+    {
+        this.info.text = info;
+        infoPanel.SetActive(true);
     }
 }
