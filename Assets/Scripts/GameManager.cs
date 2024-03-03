@@ -1,3 +1,4 @@
+using DG.Tweening;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -247,6 +248,9 @@ public class GameManager : Singleton<GameManager>
 
             yield return new WaitForSeconds(3);
 
+            yield return OpenChooPropBox();
+            yield return OpenPlayerPropBox();
+
 
             //currentPlayeropp2Gun.SetActive(true);
 
@@ -384,5 +388,72 @@ public class GameManager : Singleton<GameManager>
     {
         this.info.text = info;
         infoPanel.SetActive(true);
+    }
+    public int playerPropPosNum;
+    public BoxHeads playerBox;
+
+    public int chooPropPosNum;
+    public BoxHeads chooBox;
+    public IEnumerator OpenChooPropBox()
+    {
+        chooBox.mainBox.anim.SetTrigger("Open");
+        yield return new WaitForSeconds(1.5f);
+
+        for (int i = 0; i < 2; i++)
+        {
+            int random = Random.Range(0, chooBox.mainBox.props.Length);
+            yield return chooBox.mainBox.GetPropToTopPosition(random);
+
+            yield return new WaitForSeconds(1);
+
+            bool isReached = false;
+            DOTween.To(() => chooBox.mainBox.props[random].position, x => chooBox.mainBox.props[random].position = x, chooBox.propPOsition.pos[chooPropPosNum].toPos.position, 1.5f).OnComplete(() =>
+            {
+                chooPropPosNum++;
+                isReached = true;
+            });
+            yield return new WaitUntil(() => isReached);
+            chooBox.propPOsition.pos[chooPropPosNum - 1].props[random].gameObject.SetActive(true);
+            chooBox.propPOsition.pos[chooPropPosNum - 1].id = random;
+            chooBox.mainBox.props[random].gameObject.SetActive(false);
+            chooBox.mainBox.props[random].position = chooBox.mainBox.propStartPos[random];
+        }
+        chooBox.mainBox.anim.SetTrigger("Close");
+        yield return new WaitForSeconds(2f);
+    }
+    public IEnumerator OpenPlayerPropBox()
+    {
+        playerBox.mainBox.anim.SetTrigger("Open");
+        yield return new WaitForSeconds(2f);
+
+        for (int i = 0; i < 2; i++)
+        {
+            int random = Random.Range(0, playerBox.mainBox.props.Length);
+            yield return playerBox.mainBox.GetPropToTopPosition(random);
+
+            yield return new WaitForSeconds(1);
+
+            bool isReached = false;
+            DOTween.To(() => playerBox.mainBox.props[random].position, x => playerBox.mainBox.props[random].position = x, playerBox.propPOsition.pos[playerPropPosNum].toPos.position, 1.5f).OnComplete(() =>
+            {
+                playerPropPosNum++;
+                isReached = true;
+            });
+            yield return new WaitUntil(() => isReached);
+            playerBox.propPOsition.pos[playerPropPosNum - 1].props[random].gameObject.SetActive(true);
+            playerBox.propPOsition.pos[playerPropPosNum - 1].id = random;
+            playerBox.mainBox.props[random].gameObject.SetActive(false);
+            playerBox.mainBox.props[random].position = playerBox.mainBox.propStartPos[random];
+        }
+        playerBox.mainBox.anim.SetTrigger("Close");
+        yield return new WaitForSeconds(2f);
+
+    }
+
+    [System.Serializable]
+    public struct BoxHeads
+    {
+        public BoxHead mainBox;
+        public PropPOsition propPOsition;
     }
 }
