@@ -19,7 +19,7 @@ public class GameManager : Singleton<GameManager>
     public UnityEvent enterNameEvent;
     public GameObject[] chooGun, opp1Gun, opp2Gun;
     public Animator playerAnim, chooAnim, opp1Anim, opp2Anim;
-    public GameObject currentPlayerGun, currentPlayerchooGun, currentPlayeropp1Gun, currentPlayeropp2Gun, gameplayCam;
+    public GameObject currentPlayerGun, currentPlayerchooGun, currentPlayeropp1Gun, currentPlayeropp2Gun, gameplayCam, gameplayCam1;
     public Image[] playerHeart, chooHeart, opp1Heart, opp2Heart;
     public RCC_Camera CC_Camera;
 
@@ -130,21 +130,60 @@ public class GameManager : Singleton<GameManager>
 
     public int playerLifeCount, chooLifeCount, opp1LifeCount, opp2LifeCount;
     public Text currentState;
+    public List<int> roundChecker;
+    void RandomizeList(List<int> list)
+    {
+        // Randomly shuffle the list using Fisher-Yates algorithm
+        for (int i = 0; i < list.Count; i++)
+        {
+            int temp = list[i];
+            int randomIndex = Random.Range(i, list.Count);
+            list[i] = list[randomIndex];
+            list[randomIndex] = temp;
+        }
+    }
+    public int totalRounds;
     public IEnumerator StartRounds()
     {
         
         string trigger = isPistol ? "Pistol" : "Gun";
         float wait = isPistol ? 2: 3;
-        while (playerLifeCount != 3 || chooLifeCount != 3 || opp1LifeCount != 3 || opp2LifeCount != 3)
+
+        int randomBulletCount = Random.Range(3, 6);
+        int emptyRandomCount = Random.Range(2, randomBulletCount);
+        Debug.LogError(randomBulletCount);
+        Debug.LogError(emptyRandomCount);
+        bulletArea.SetBullets(randomBulletCount, emptyRandomCount);
+        roundChecker.Clear();
+        Debug.LogError(randomBulletCount - emptyRandomCount);
+        for (int i = 0; i < randomBulletCount-emptyRandomCount; i++)
+        {
+            Debug.Log("Adding 1");
+            roundChecker.Add(1);
+        }
+        for (int i = 0; i < emptyRandomCount; i++)
+        {
+            Debug.Log("Adding 0");
+            roundChecker.Add(0);
+        }
+
+        RandomizeList(roundChecker);
+
+
+        gameplayCam.SetActive(true);
+        gameplayCam1.SetActive(true);
+        yield return new WaitForSeconds(1.2f);
+        yield return bulletArea.StartShowing(true);
+        int roundCount = roundChecker.Count;
+        while (roundCount != 0)//playerLifeCount != 3 || chooLifeCount != 3 || opp1LifeCount != 3 || opp2LifeCount != 3)
         {
             currentState.text = "YOUR TURN";
             fire.gameObject.SetActive(false);
             fireYourself.gameObject.SetActive(false);
 
 
-            gameplayCam.SetActive(true);
 
-            
+
             yield return new WaitForSeconds(2);
 
             
@@ -161,7 +200,7 @@ public class GameManager : Singleton<GameManager>
             if (fired)
             {
                 fired = false;
-                randomNum = Random.Range(0, 2);
+                randomNum = roundChecker[roundCount-1];
                 playerAnim.SetTrigger(trigger);
 
                 yield return new WaitForSeconds(1);
@@ -171,7 +210,7 @@ public class GameManager : Singleton<GameManager>
                 yield return new WaitForSeconds(wait - 1);
 
 
-                if (randomNum == 0)
+                if (randomNum == 1)
                 {
                     currentState.text = "Opponent Lost a life";
                     chooHeart[chooLifeCount].gameObject.SetActive(true);
@@ -188,7 +227,7 @@ public class GameManager : Singleton<GameManager>
             else if (firedYourSelf) 
             {
                 firedYourSelf = false;
-                randomNum = Random.Range(0, 2);
+                randomNum = roundChecker[roundCount-1];
                 playerAnim.SetTrigger(trigger);
 
                 yield return new WaitForSeconds(1);
@@ -198,7 +237,7 @@ public class GameManager : Singleton<GameManager>
                 yield return new WaitForSeconds(wait - 1);
 
 
-                if (randomNum == 0)
+                if (randomNum == 1)
                 {
                     currentState.text = "You Lost a life";
                     playerHeart[playerLifeCount].gameObject.SetActive(true);
@@ -213,7 +252,7 @@ public class GameManager : Singleton<GameManager>
                 currentPlayerGun.SetActive(false);
             }
 
-
+            roundCount = roundCount - 1;
             yield return new WaitForSeconds(3);
             currentState.text = "CHOO'S TURN";
             yield return new WaitForSeconds(1);
@@ -223,16 +262,18 @@ public class GameManager : Singleton<GameManager>
             
             chooAnim.SetTrigger(trigger);
 
-            
-            randomNum = Random.Range(0, 2);
+            if (roundCount - 1 < 0)
+                goto Here;
 
-            
+            randomNum = roundChecker[roundCount-1];
+
+
             yield return new WaitForSeconds(1);
             SoundManager.Instance.PlaySound(SoundName.gunshot);
             yield return new WaitForSeconds(wait-1);
 
 
-            if (randomNum == 0)
+            if (randomNum == 1)
             {
                 currentState.text = "You Lost A Life";
                 playerHeart[playerLifeCount].gameObject.SetActive(true);
@@ -248,9 +289,14 @@ public class GameManager : Singleton<GameManager>
 
             yield return new WaitForSeconds(3);
 
-            yield return OpenChooPropBox();
-            yield return OpenPlayerPropBox();
+            yield return bulletArea.StartShowing(false);
 
+            if (totalRounds < 4)
+            {
+                yield return OpenChooPropBox();
+                yield return OpenPlayerPropBox();
+            }
+            totalRounds = totalRounds + 1;
 
             //currentPlayeropp2Gun.SetActive(true);
 
@@ -300,7 +346,7 @@ public class GameManager : Singleton<GameManager>
             //    goto Here;
 
             //currentPlayeropp1Gun.SetActive(false);
-
+            roundCount = roundCount - 1;
         }
         Here:
         if (playerLifeCount == 3)
@@ -308,17 +354,21 @@ public class GameManager : Singleton<GameManager>
             playerAnim.SetTrigger("Die");
             ShowLevelFailWithDelay(4);
         }
-        else
+        else if(chooLifeCount == 3)
         {
             chooAnim.SetTrigger("Die");
             ShowLevelComplteWithDelay(4);
+        }
+        else
+        {
+            StartGame();
         }
     }
 
     public GameObject PausePanel;
     public GameObject LevelCompletePanel;
     public GameObject LevelFailedPanel;
-
+    public BulletArea bulletArea;
 
     public void ShowLevelCompletePanel()
     {

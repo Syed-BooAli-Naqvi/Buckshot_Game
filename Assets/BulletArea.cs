@@ -8,17 +8,27 @@ public class BulletArea : MonoBehaviour
     public Animator animator;
     public GameObject myCam;
 
-    private void Start()
-    {
-        StartCoroutine(StartShowing(5, 2));    
-    }
 
-    public IEnumerator StartShowing(int totalRounds, int empty)
+    public IEnumerator StartShowing(bool showAnim)
     {
         myCam.SetActive(true);
 
         yield return new WaitForSeconds(3);
+        if (showAnim)
+        {
+            animator.SetTrigger("Open");
+            yield return new WaitForSeconds(4f);
 
+            animator.SetTrigger("Close");
+            yield return new WaitForSeconds(2f);
+        }
+
+        myCam.SetActive(false);
+        yield return new WaitForSeconds(2f);
+    }
+
+    public void SetBullets(int totalRounds, int empty)
+    {
         for (int i = 0; i < bullets.Count; i++)
         {
             bullets[i].fullBullet.SetActive(false);
@@ -29,20 +39,11 @@ public class BulletArea : MonoBehaviour
             bullets[i].fullBullet.SetActive(false);
             bullets[i].emptyBullet.SetActive(true);
         }
-        for (int i = 0; i < empty+1; i++)
+        for (int i = 0; i < empty - 1; i++)
         {
             bullets[i].fullBullet.SetActive(true);
             bullets[i].emptyBullet.SetActive(false);
         }
-        animator.SetTrigger("Open");
-        yield return new WaitForSeconds(4f);
-
-        animator.SetTrigger("Close");
-        yield return new WaitForSeconds(2f);
-
-
-        myCam.SetActive(false);
-        yield return new WaitForSeconds(2f);
     }
 
 
