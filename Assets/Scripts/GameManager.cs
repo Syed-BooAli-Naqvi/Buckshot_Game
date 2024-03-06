@@ -193,7 +193,7 @@ public class GameManager : Singleton<GameManager>
         int roundCount = roundChecker.Count;
         while (roundCount >= 0)
         {
-
+            StartFrom:
             currentState.text = "PICK THE GUN"; 
             Gun.Instance.canPick = true;
             yield return new WaitUntil(() => !Gun.Instance.canPick);
@@ -267,31 +267,39 @@ public class GameManager : Singleton<GameManager>
             Debug.Log("roundCount  = " + roundCount);
             if (roundCount <= 0)
                 goto Here;
-            currentState.text = "CHOO'S TURN";
-            yield return Gun.Instance.ToChoo();
-            yield return new WaitForSeconds(1);
-
-            //currentPlayerchooGun.SetActive(true);
-            //chooAnim.SetTrigger(trigger);
-            randomNum = roundChecker[roundCount-1];
-            yield return new WaitForSeconds(1);
-
-            SoundManager.Instance.PlaySound(SoundName.gunshot);
-            yield return Gun.Instance.Shoot();
-            yield return new WaitForSeconds(wait-1);
-
-            if (randomNum == 1)
+            if (!skip)
             {
-                currentState.text = "You Lost A Life";
-                playerHeart[playerLifeCount].gameObject.SetActive(true);
-                playerLifeCount = playerLifeCount + 1;
+                currentState.text = "CHOO'S TURN";
+                yield return Gun.Instance.ToChoo();
+                yield return new WaitForSeconds(1);
+
+                //currentPlayerchooGun.SetActive(true);
+                //chooAnim.SetTrigger(trigger);
+                randomNum = roundChecker[roundCount - 1];
+                yield return new WaitForSeconds(1);
+
+                SoundManager.Instance.PlaySound(SoundName.gunshot);
+                yield return Gun.Instance.Shoot();
+                yield return new WaitForSeconds(wait - 1);
+
+                if (randomNum == 1)
+                {
+                    currentState.text = "You Lost A Life";
+                    playerHeart[playerLifeCount].gameObject.SetActive(true);
+                    playerLifeCount = playerLifeCount + 1;
+                }
+                else
+                {
+                    currentState.text = "Round Was Empty";
+                }
+                if (playerLifeCount >= 3 || chooLifeCount >= 3 || opp1LifeCount >= 3 || opp2LifeCount >= 3)
+                    goto Here;
             }
             else
             {
-                currentState.text = "Round Was Empty";
+                skip = false;
+                goto StartFrom;
             }
-            if (playerLifeCount >= 3 || chooLifeCount >= 3 || opp1LifeCount >= 3 || opp2LifeCount >= 3)
-                goto Here;
             //currentPlayerchooGun.SetActive(false);
             yield return Gun.Instance.ToTable();
             yield return new WaitForSeconds(3);
@@ -306,7 +314,7 @@ public class GameManager : Singleton<GameManager>
             roundCount = roundCount - 1;
             isPlaying = false;
             Debug.Log("roundCount  = " + roundCount);
-            if (roundCount < 0)
+            if (roundCount <= 0)
                 goto Here;
         }
         Here:
@@ -326,6 +334,23 @@ public class GameManager : Singleton<GameManager>
         }
     }
 
+    public void Retry()
+    {
+        if (playerLifeCount != 0)
+            playerHeart[playerLifeCount - 1].gameObject.SetActive(false);
+
+        if (playerLifeCount != 0)
+            playerLifeCount = playerLifeCount - 1;
+        if (playerLifeCount != 0)
+            playerHeart[playerLifeCount - 1].gameObject.SetActive(false);
+
+        if (playerLifeCount != 0)
+            playerLifeCount = playerLifeCount - 1;
+        StartCoroutine(Gun.Instance.ToTable());
+        LevelFailedPanel.SetActive(false);
+        StartGame();
+    }
+    public bool skip;
     public static bool isPlaying;
 
     public void Knife()
@@ -372,6 +397,7 @@ public class GameManager : Singleton<GameManager>
     public void HandCuffs()
     {
         Debug.Log("HandCuffs");
+        skip = true;
     }
     public void Can()
     {
