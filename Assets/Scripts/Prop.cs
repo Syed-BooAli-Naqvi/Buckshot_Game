@@ -4,6 +4,8 @@ using UnityEngine;
 
 public class Prop : MonoBehaviour
 {
+    public bool isMine;
+    public bool canPick;
     public bool test;
     public int id;
     public List<GameObject> props = new List<GameObject>();
@@ -21,16 +23,5 @@ public class Prop : MonoBehaviour
                 props.Add(transform.GetChild(i).gameObject);
             }
         }
-    }
-    // Start is called before the first frame update
-    void Start()
-    {
-        
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-        
     }
 }

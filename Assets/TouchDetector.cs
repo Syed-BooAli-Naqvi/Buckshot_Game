@@ -21,12 +21,36 @@ public class TouchDetector : MonoBehaviour
 
 
             hitting = Physics.Raycast(ray, out hit);
-            Debug.Log("Ray Hit = " + hit.collider.name);
             // Check if the raycast hits a collider
             if (hitting)
             {
                 Debug.DrawRay(ray.origin, ray.direction * 100f, Color.red);
-                Debug.Log("Collider touched!");
+                if (hit.transform.GetComponent<Prop>() != null && hit.transform.GetComponent<Prop>().canPick && hit.transform.GetComponent<Prop>().isMine && !GameManager.isPlaying)
+                {
+                    var prop = hit.transform.GetComponent<Prop>();
+                    prop.canPick = false;
+                    prop.props[prop.id].SetActive(false);
+                    Debug.Log("Collider touched!");
+                    switch (prop.id)
+                    {
+                        case 0:
+                            GameManager.Instance.Knife();
+                            break;
+                        case 1:
+                            GameManager.Instance.HandCuffs();
+                            break;
+                        case 2:
+                            GameManager.Instance.Can();
+                            break;
+                        case 3:
+                            GameManager.Instance.CiggeretPack();
+                            break;
+                    }
+                }
+                else if (hit.transform.CompareTag("gun") && hit.transform.GetComponent<Gun>() != null && hit.transform.GetComponent<Gun>().canPick)
+                {
+                    hit.transform.GetComponent<Gun>().Pick();
+                }
             }
         }
     }
