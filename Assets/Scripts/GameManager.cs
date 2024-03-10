@@ -1,6 +1,7 @@
 using DG.Tweening;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.UI;
@@ -128,7 +129,6 @@ public class GameManager : Singleton<GameManager>
     public Button fire,fireYourself;
     public void StartGame()
     {
-        PlayerPrefs.SetInt(SharedPrefs.GameStarted, 1);
         StartCoroutine(StartRounds());
     }
     public bool fired, firedYourSelf, isPistol;
@@ -159,16 +159,27 @@ public class GameManager : Singleton<GameManager>
     public int totalRounds;
     public bool canPlay;
     public int randomNum = 0;
+    public int livesCount;
     public IEnumerator StartRounds()
     {
-        
+        livesCount = Random.Range(3, 6);
+        if (PlayerPrefs.GetInt(SharedPrefs.GameStarted) != 1)
+        {
+            livesCount = 3;
+        }
+        PlayerPrefs.SetInt(SharedPrefs.GameStarted, 1);
+        for (int i = 0; i < livesCount; i++)
+        {
+            chooHeart[i].transform.parent.gameObject.SetActive(true);
+            playerHeart[i].transform.parent.gameObject.SetActive(true);
+        }
         string trigger = isPistol ? "Pistol" : "Gun";
         float wait = isPistol ? 2: 3;
 
         int randomBulletCount = Random.Range(3, 6);
-        int emptyRandomCount = Random.Range(2, randomBulletCount);
-        Debug.LogError(randomBulletCount);
-        Debug.LogError(emptyRandomCount);
+        int emptyRandomCount = Random.Range(1, randomBulletCount-1);
+        Debug.LogError("randomBulletCount = " + randomBulletCount);
+        Debug.LogError("emptyRandomCount = " + emptyRandomCount);
         bulletArea.SetBullets(randomBulletCount, emptyRandomCount);
         roundChecker.Clear();
         Debug.LogError(randomBulletCount - emptyRandomCount);
@@ -194,81 +205,103 @@ public class GameManager : Singleton<GameManager>
         while (roundCount >= 0)
         {
             StartFrom:
-            currentState.text = "PICK THE GUN"; 
-            Gun.Instance.canPick = true;
-            yield return new WaitUntil(() => !Gun.Instance.canPick);
-            yield return Gun.Instance.Picking();
-            currentState.text = "YOUR TURN";
-            fire.gameObject.SetActive(false);
-            fireYourself.gameObject.SetActive(false);
-            yield return new WaitForSeconds(2);
-            
-            //currentPlayerGun.SetActive(true);
-            fire.gameObject.SetActive(true);
-            fireYourself.gameObject.SetActive(true);
-            yield return new WaitUntil(() => fired || firedYourSelf);
-
-            isPlaying = true;
-            fire.gameObject.SetActive(false);
-            fireYourself.gameObject.SetActive(false);
-            randomNum = 0;
-            if (fired)
+            chooAnim.SetLayerWeight(1, 0);
+            playerAnim.SetLayerWeight(1, 0);
+            handCuff.SetActive(false);
+            if (!skipChoo)
             {
-                fired = false;
-                randomNum = roundChecker[roundCount-1];
-                yield return Gun.Instance.Shoot();
-                yield return new WaitForSeconds(0.5f);
+                currentState.text = "PICK THE GUN";
+                Gun.Instance.canPick = true;
+                yield return new WaitUntil(() => !Gun.Instance.canPick);
+                yield return Gun.Instance.Picking();
+                currentState.text = "YOUR TURN";
+                fire.gameObject.SetActive(false);
+                fireYourself.gameObject.SetActive(false);
+                yield return new WaitForSeconds(2);
 
-                SoundManager.Instance.PlaySound(SoundName.gunshot);
-                yield return new WaitForSeconds(wait - 1);
+                //currentPlayerGun.SetActive(true);
+                fire.gameObject.SetActive(true);
+                fireYourself.gameObject.SetActive(true);
+                yield return new WaitUntil(() => fired || firedYourSelf);
 
-                if (randomNum == 1)
+                isPlaying = true;
+                fire.gameObject.SetActive(false);
+                fireYourself.gameObject.SetActive(false);
+                randomNum = 0;
+                if (fired)
                 {
-                    currentState.text = "Opponent Lost a life";
-                    chooHeart[chooLifeCount].gameObject.SetActive(true);
-                    chooLifeCount = chooLifeCount + 1;
+                    fired = false;
+                    randomNum = roundChecker[roundCount - 1];
+                    if (randomNum == 1)
+                    {
+                        SoundManager.Instance.PlaySound(SoundName.gunshot);
+                        bulletAnim.SetTrigger("Shoot");
+                    }
+
+                    yield return Gun.Instance.Shoot();
+                    yield return new WaitForSeconds(0.5f);
+
+                    yield return new WaitForSeconds(wait - 1);
+
+                    if (randomNum == 1)
+                    {
+                        currentState.text = "Opponent Lost a life";
+                        chooHeart[chooLifeCount].gameObject.SetActive(true);
+                        chooLifeCount = chooLifeCount + 1;
+                    }
+                    else
+                    {
+                        currentState.text = "Round Was Empty";
+                    }
+                    if (playerLifeCount >= livesCount || chooLifeCount >= livesCount || opp1LifeCount >= livesCount || opp2LifeCount >= livesCount)
+                        goto Here;
+                    currentPlayerGun.SetActive(false);
                 }
-                else
+                else if (firedYourSelf)
                 {
-                    currentState.text = "Round Was Empty";
+                    firedYourSelf = false;
+                    randomNum = roundChecker[roundCount - 1];
+                    if (randomNum == 1)
+                    {
+                        SoundManager.Instance.PlaySound(SoundName.gunshot);
+                        bulletAnim.SetTrigger("Shoot");
+                    }
+                    yield return Gun.Instance.ShootY();
+                    yield return new WaitForSeconds(0.5f);
+                    yield return new WaitForSeconds(wait - 1);
+
+                    if (randomNum == 1)
+                    {
+                        currentState.text = "You Lost a life";
+                        playerHeart[playerLifeCount].gameObject.SetActive(true);
+                        playerLifeCount = playerLifeCount + 1;
+                    }
+                    else
+                    {
+                        currentState.text = "Round Was Empty";
+                    }
+                    if (playerLifeCount >= livesCount || chooLifeCount >= livesCount || opp1LifeCount >= livesCount || opp2LifeCount >= livesCount)
+                        goto Here;
+                    currentPlayerGun.SetActive(false);
                 }
-                if (playerLifeCount >= 3 || chooLifeCount >= 3 || opp1LifeCount >= 3 || opp2LifeCount >= 3)
+                yield return Gun.Instance.ToTable();
+                roundCount = roundCount - 1;
+                yield return new WaitForSeconds(3);
+
+                Debug.Log("roundCount  = " + roundCount);
+                if (roundCount <= 0)
                     goto Here;
-                currentPlayerGun.SetActive(false);
+
+                isChooPlaying = false;
             }
-            else if (firedYourSelf) 
+            else
             {
-                firedYourSelf = false;
-                randomNum = roundChecker[roundCount-1];
-                yield return Gun.Instance.ShootY();
-                yield return new WaitForSeconds(0.5f);
-
-                SoundManager.Instance.PlaySound(SoundName.gunshot);
-                yield return new WaitForSeconds(wait - 1);
-
-                if (randomNum == 1)
-                {
-                    currentState.text = "You Lost a life";
-                    playerHeart[playerLifeCount].gameObject.SetActive(true);
-                    playerLifeCount = playerLifeCount + 1;
-                }
-                else
-                {
-                    currentState.text = "Round Was Empty";
-                }
-                if (playerLifeCount >= 3 || chooLifeCount >= 3 || opp1LifeCount >= 3 || opp2LifeCount >= 3)
-                    goto Here;
-                currentPlayerGun.SetActive(false);
+                skipChoo = false;
             }
-            yield return Gun.Instance.ToTable();
-            roundCount = roundCount - 1;
-            yield return new WaitForSeconds(3);
-
-            Debug.Log("roundCount  = " + roundCount);
-            if (roundCount <= 0)
-                goto Here;
             if (!skip)
             {
+                isChooPlaying = true;
+                yield return CheckChooAI();
                 currentState.text = "CHOO'S TURN";
                 yield return Gun.Instance.ToChoo();
                 yield return new WaitForSeconds(1);
@@ -276,9 +309,12 @@ public class GameManager : Singleton<GameManager>
                 //currentPlayerchooGun.SetActive(true);
                 //chooAnim.SetTrigger(trigger);
                 randomNum = roundChecker[roundCount - 1];
-                yield return new WaitForSeconds(1);
+                if (randomNum == 1)
+                {
+                    SoundManager.Instance.PlaySound(SoundName.gunshot);
+                    bulletAnim.SetTrigger("Shoot");
+                }
 
-                SoundManager.Instance.PlaySound(SoundName.gunshot);
                 yield return Gun.Instance.Shoot();
                 yield return new WaitForSeconds(wait - 1);
 
@@ -292,12 +328,13 @@ public class GameManager : Singleton<GameManager>
                 {
                     currentState.text = "Round Was Empty";
                 }
-                if (playerLifeCount >= 3 || chooLifeCount >= 3 || opp1LifeCount >= 3 || opp2LifeCount >= 3)
+                if (playerLifeCount >= livesCount || chooLifeCount >= livesCount || opp1LifeCount >= livesCount || opp2LifeCount >= livesCount)
                     goto Here;
             }
             else
             {
                 skip = false;
+                skipChoo = false;
                 goto StartFrom;
             }
             //currentPlayerchooGun.SetActive(false);
@@ -318,12 +355,12 @@ public class GameManager : Singleton<GameManager>
                 goto Here;
         }
         Here:
-        if (playerLifeCount >= 3)
+        if (playerLifeCount >= livesCount)
         {
             playerAnim.SetTrigger("Die");
             ShowLevelFailWithDelay(4);
         }
-        else if(chooLifeCount >= 3)
+        else if(chooLifeCount >= livesCount)
         {
             chooAnim.SetTrigger("Die");
             ShowLevelComplteWithDelay(4);
@@ -333,6 +370,41 @@ public class GameManager : Singleton<GameManager>
             StartGame();
         }
     }
+    public IEnumerator CheckChooAI()
+    {
+        bool canPerform = Random.Range(0, 2) == 1;
+        if (canPerform)
+        {
+            if (chooBox.propPOsition.pos.Length == 0)
+                yield break;
+            List<Prop> filteredList = chooBox.propPOsition.pos.Where(item => item.canPick).ToList();
+            int a = Random.Range(0, filteredList.Count);
+            Prop randomElement = filteredList[a];
+            randomElement.props[randomElement.id].gameObject.SetActive(false);
+            if (randomElement.id == 0)
+            {
+                yield return StartKnifeCHOO();
+            }
+            else if (randomElement.id == 1)
+            {
+                HandCuffsCHOO();
+            }
+            else if (randomElement.id == 2)
+            {
+                yield return StartCanCHOO();
+            }
+            else if (randomElement.id == 3)
+            {
+                yield return StartCiggeretCHOO();
+            }
+        }
+        else
+        {
+            yield break;
+        }
+    }
+    public GameObject handCuff;
+    public Animator bulletAnim;
 
     public void Retry()
     {
@@ -350,8 +422,9 @@ public class GameManager : Singleton<GameManager>
         LevelFailedPanel.SetActive(false);
         StartGame();
     }
-    public bool skip;
-    public static bool isPlaying;
+
+    public bool skip, skipChoo;
+    public static bool isPlaying, isChooPlaying;
 
     public void Knife()
     {
@@ -375,12 +448,12 @@ public class GameManager : Singleton<GameManager>
             chooLifeCount = chooLifeCount + 1;
 
        
-        if (playerLifeCount >= 3)
+        if (playerLifeCount >= livesCount)
         {
             playerAnim.SetTrigger("Die");
             ShowLevelFailWithDelay(4);
         }
-        else if (chooLifeCount >= 3)
+        else if (chooLifeCount >= livesCount)
         {
             chooAnim.SetTrigger("Die");
             ShowLevelComplteWithDelay(4);
@@ -397,6 +470,8 @@ public class GameManager : Singleton<GameManager>
     public void HandCuffs()
     {
         Debug.Log("HandCuffs");
+        chooAnim.SetLayerWeight(1, 1);
+        handCuff.SetActive(true);
         skip = true;
     }
     public void Can()
@@ -420,12 +495,12 @@ public class GameManager : Singleton<GameManager>
 
         if (playerLifeCount != 0)
             playerLifeCount = playerLifeCount - 1;
-        if (playerLifeCount >= 3)
+        if (playerLifeCount >= livesCount)
         {
             playerAnim.SetTrigger("Die");
             ShowLevelFailWithDelay(4);
         }
-        else if (chooLifeCount >= 3)
+        else if (chooLifeCount >= livesCount)
         {
             chooAnim.SetTrigger("Die");
             ShowLevelComplteWithDelay(4);
@@ -460,12 +535,12 @@ public class GameManager : Singleton<GameManager>
         if (playerLifeCount != 0)
             playerLifeCount = playerLifeCount - 1;
 
-        if (playerLifeCount >= 3)
+        if (playerLifeCount >= livesCount)
         {
             playerAnim.SetTrigger("Die");
             ShowLevelFailWithDelay(4);
         }
-        else if (chooLifeCount >= 3)
+        else if (chooLifeCount >= livesCount)
         {
             chooAnim.SetTrigger("Die");
             ShowLevelComplteWithDelay(4);
@@ -480,6 +555,112 @@ public class GameManager : Singleton<GameManager>
         }
     }
 
+    #region ChooAI
+
+    public void KnifeCHOO()
+    {
+        Debug.Log("KNifeCHOO");
+        StartCoroutine(StartKnifeCHOO());
+    }
+    public Animator knifeCHOO;
+    public IEnumerator StartKnifeCHOO()
+    {
+        fire.gameObject.SetActive(false);
+        fireYourself.gameObject.SetActive(false);
+        knifeCHOO.gameObject.SetActive(true);
+        knifeCHOO.SetTrigger("Knife");
+        yield return new WaitForSeconds(3);
+        knifeCHOO.gameObject.SetActive(false);
+        if (playerLifeCount < playerHeart.Length)
+            playerHeart[playerLifeCount].gameObject.SetActive(true);
+
+        yield return bulletArea.StartShowing(false);
+
+        playerLifeCount = playerLifeCount + 1;
+
+
+        if (playerLifeCount >= livesCount)
+        {
+            playerAnim.SetTrigger("Die");
+            ShowLevelFailWithDelay(4);
+        }
+        else if (chooLifeCount >= livesCount)
+        {
+            chooAnim.SetTrigger("Die");
+            ShowLevelComplteWithDelay(4);
+        }
+    }
+    public void HandCuffsCHOO()
+    {
+        Debug.Log("HandCuffsCHOO");
+        skipChoo = true;
+    }
+    public void CanCHOO()
+    {
+        Debug.Log("CanCHOO");
+        StartCoroutine(StartCanCHOO());
+    }
+    public Animator canCHOO;
+    public IEnumerator StartCanCHOO()
+    {
+        fire.gameObject.SetActive(false);
+        fireYourself.gameObject.SetActive(false);
+        canCHOO.gameObject.SetActive(true);
+        canCHOO.SetTrigger("Can");
+        yield return new WaitForSeconds(3);
+        canCHOO.gameObject.SetActive(false);
+        if (chooLifeCount != 0)
+            chooHeart[chooLifeCount - 1].gameObject.SetActive(false);
+
+        yield return bulletArea.StartShowing(false);
+
+        if (chooLifeCount != 0)
+            chooLifeCount = chooLifeCount - 1;
+        if (playerLifeCount >= livesCount)
+        {
+            playerAnim.SetTrigger("Die");
+            ShowLevelFailWithDelay(4);
+        }
+        else if (chooLifeCount >= livesCount)
+        {
+            chooAnim.SetTrigger("Die");
+            ShowLevelComplteWithDelay(4);
+        }
+    }
+    public void CiggeretPackCHOO()
+    {
+        Debug.Log("CiggeretPackCHOO");
+        StartCoroutine(StartCiggeretCHOO());
+    }
+    public GameObject CiggeretCHOO;
+    public IEnumerator StartCiggeretCHOO()
+    {
+        fire.gameObject.SetActive(false);
+        fireYourself.gameObject.SetActive(false);
+        CiggeretCHOO.gameObject.SetActive(true);
+        yield return new WaitForSeconds(3);
+        CiggeretCHOO.gameObject.SetActive(false);
+        if (chooLifeCount != 0)
+            chooHeart[chooLifeCount - 1].gameObject.SetActive(false);
+
+        yield return bulletArea.StartShowing(false);
+
+        if (chooLifeCount != 0)
+            chooLifeCount = chooLifeCount - 1;
+
+        if (playerLifeCount >= livesCount)
+        {
+            playerAnim.SetTrigger("Die");
+            ShowLevelFailWithDelay(4);
+        }
+        else if (chooLifeCount >= livesCount)
+        {
+            chooAnim.SetTrigger("Die");
+            ShowLevelComplteWithDelay(4);
+        }
+    }
+
+    #endregion
     public GameObject PausePanel;
     public GameObject LevelCompletePanel;
     public GameObject LevelFailedPanel;

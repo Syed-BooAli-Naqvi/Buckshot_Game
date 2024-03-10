@@ -31,18 +31,20 @@ public class BulletArea : MonoBehaviour
     {
         for (int i = 0; i < bullets.Count; i++)
         {
+            Debug.LogError("Disabling All Bullets");
             bullets[i].fullBullet.SetActive(false);
             bullets[i].emptyBullet.SetActive(false);
         }
-        for (int i = 0; i < totalRounds; i++)
+        for (int i = 0; i < totalRounds-empty; i++)
+        //for (int i = 0; i < empty; i++)
         {
-            bullets[i].fullBullet.SetActive(false);
-            bullets[i].emptyBullet.SetActive(true);
-        }
-        for (int i = 0; i < empty - 1; i++)
-        {
+            Debug.LogError("Enabling Full Bullets = " + i);
             bullets[i].fullBullet.SetActive(true);
-            bullets[i].emptyBullet.SetActive(false);
+        }
+        for (int i = totalRounds - empty; i < totalRounds; i++)
+        {
+            Debug.LogError("Enabling Empty Bullets = " + i);
+            bullets[i].emptyBullet.SetActive(true);
         }
     }
 

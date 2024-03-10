@@ -1,5 +1,3 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 public class MainMenuHandler : MonoBehaviour
@@ -10,7 +8,12 @@ public class MainMenuHandler : MonoBehaviour
     public string MoreGamesURL;
     public void PlayGame()
     {
-        LoadingScript.Instance.loadscene(2);
+        LoadingScript.Instance.loadscene(mode);
+    }
+    public int mode;
+    public void SetModeIndex(int modeNum)
+    {
+        mode = modeNum;
     }
 
 
