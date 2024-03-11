@@ -253,7 +253,7 @@ public class GameManager : Singleton<GameManager>
                     {
                         currentState.text = "Round Was Empty";
                     }
-                    if (playerLifeCount >= livesCount || chooLifeCount >= livesCount || opp1LifeCount >= livesCount || opp2LifeCount >= livesCount)
+                    if (playerLifeCount >= livesCount +1 || chooLifeCount >= livesCount +1 || opp1LifeCount >= livesCount +1 || opp2LifeCount >= livesCount +1)
                         goto Here;
                     currentPlayerGun.SetActive(false);
                 }
@@ -280,7 +280,7 @@ public class GameManager : Singleton<GameManager>
                     {
                         currentState.text = "Round Was Empty";
                     }
-                    if (playerLifeCount >= livesCount || chooLifeCount >= livesCount || opp1LifeCount >= livesCount || opp2LifeCount >= livesCount)
+                    if (playerLifeCount >= livesCount +1 || chooLifeCount >= livesCount +1 || opp1LifeCount >= livesCount +1 || opp2LifeCount >= livesCount +1)
                         goto Here;
                     currentPlayerGun.SetActive(false);
                 }
@@ -328,7 +328,7 @@ public class GameManager : Singleton<GameManager>
                 {
                     currentState.text = "Round Was Empty";
                 }
-                if (playerLifeCount >= livesCount || chooLifeCount >= livesCount || opp1LifeCount >= livesCount || opp2LifeCount >= livesCount)
+                if (playerLifeCount >= livesCount +1 || chooLifeCount >= livesCount +1 || opp1LifeCount >= livesCount +1 || opp2LifeCount >= livesCount +1)
                     goto Here;
             }
             else
@@ -355,12 +355,12 @@ public class GameManager : Singleton<GameManager>
                 goto Here;
         }
         Here:
-        if (playerLifeCount >= livesCount)
+        if (playerLifeCount >= livesCount +1)
         {
             playerAnim.SetTrigger("Die");
             ShowLevelFailWithDelay(4);
         }
-        else if(chooLifeCount >= livesCount)
+        else if(chooLifeCount >= livesCount +1)
         {
             chooAnim.SetTrigger("Die");
             ShowLevelComplteWithDelay(4);
@@ -375,9 +375,9 @@ public class GameManager : Singleton<GameManager>
         bool canPerform = Random.Range(0, 2) == 1;
         if (canPerform)
         {
-            if (chooBox.propPOsition.pos.Length == 0)
-                yield break;
             List<Prop> filteredList = chooBox.propPOsition.pos.Where(item => item.canPick).ToList();
+            if (filteredList.Count == 0)
+                yield break;
             int a = Random.Range(0, filteredList.Count);
             Prop randomElement = filteredList[a];
             randomElement.props[randomElement.id].gameObject.SetActive(false);
@@ -448,12 +448,12 @@ public class GameManager : Singleton<GameManager>
             chooLifeCount = chooLifeCount + 1;
 
        
-        if (playerLifeCount >= livesCount)
+        if (playerLifeCount >= livesCount +1)
         {
             playerAnim.SetTrigger("Die");
             ShowLevelFailWithDelay(4);
         }
-        else if (chooLifeCount >= livesCount)
+        else if (chooLifeCount >= livesCount +1)
         {
             chooAnim.SetTrigger("Die");
             ShowLevelComplteWithDelay(4);
@@ -495,12 +495,12 @@ public class GameManager : Singleton<GameManager>
 
         if (playerLifeCount != 0)
             playerLifeCount = playerLifeCount - 1;
-        if (playerLifeCount >= livesCount)
+        if (playerLifeCount >= livesCount +1)
         {
             playerAnim.SetTrigger("Die");
             ShowLevelFailWithDelay(4);
         }
-        else if (chooLifeCount >= livesCount)
+        else if (chooLifeCount >= livesCount +1)
         {
             chooAnim.SetTrigger("Die");
             ShowLevelComplteWithDelay(4);
@@ -535,12 +535,12 @@ public class GameManager : Singleton<GameManager>
         if (playerLifeCount != 0)
             playerLifeCount = playerLifeCount - 1;
 
-        if (playerLifeCount >= livesCount)
+        if (playerLifeCount >= livesCount +1)
         {
             playerAnim.SetTrigger("Die");
             ShowLevelFailWithDelay(4);
         }
-        else if (chooLifeCount >= livesCount)
+        else if (chooLifeCount >= livesCount +1)
         {
             chooAnim.SetTrigger("Die");
             ShowLevelComplteWithDelay(4);
@@ -579,12 +579,12 @@ public class GameManager : Singleton<GameManager>
         playerLifeCount = playerLifeCount + 1;
 
 
-        if (playerLifeCount >= livesCount)
+        if (playerLifeCount >= livesCount +1)
         {
             playerAnim.SetTrigger("Die");
             ShowLevelFailWithDelay(4);
         }
-        else if (chooLifeCount >= livesCount)
+        else if (chooLifeCount >= livesCount +1)
         {
             chooAnim.SetTrigger("Die");
             ShowLevelComplteWithDelay(4);
@@ -616,12 +616,12 @@ public class GameManager : Singleton<GameManager>
 
         if (chooLifeCount != 0)
             chooLifeCount = chooLifeCount - 1;
-        if (playerLifeCount >= livesCount)
+        if (playerLifeCount >= livesCount +1)
         {
             playerAnim.SetTrigger("Die");
             ShowLevelFailWithDelay(4);
         }
-        else if (chooLifeCount >= livesCount)
+        else if (chooLifeCount >= livesCount +1)
         {
             chooAnim.SetTrigger("Die");
             ShowLevelComplteWithDelay(4);
@@ -648,12 +648,12 @@ public class GameManager : Singleton<GameManager>
         if (chooLifeCount != 0)
             chooLifeCount = chooLifeCount - 1;
 
-        if (playerLifeCount >= livesCount)
+        if (playerLifeCount >= livesCount +1)
         {
             playerAnim.SetTrigger("Die");
             ShowLevelFailWithDelay(4);
         }
-        else if (chooLifeCount >= livesCount)
+        else if (chooLifeCount >= livesCount +1)
         {
             chooAnim.SetTrigger("Die");
             ShowLevelComplteWithDelay(4);
